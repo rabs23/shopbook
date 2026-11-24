@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shopbook</title>
+<style>
+:root{--bg:#f3eadb;--card:#fffaf1;--ink:#3b2a20;--mute:#8a7560;--line:#e2d3bb;--acc:#5d7342;--accbg:#e6ebd5;--bad:#b04a2a;--badbg:#f6e1d6;--onacc:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1f1a15;--card:#2a231c;--ink:#f0e6d6;--mute:#b3a28b;--line:#40362b;--acc:#a9c27a;--accbg:#323a22;--bad:#e8946f;--badbg:#42261b;--onacc:#1f1a15;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1f1a15;--card:#2a231c;--ink:#f0e6d6;--mute:#b3a28b;--line:#40362b;--acc:#a9c27a;--accbg:#323a22;--bad:#e8946f;--badbg:#42261b;--onacc:#1f1a15;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+button,input,select,textarea{font-family:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Times New Roman",Times,serif;font-size:18px;line-height:1.45}
+.wrap{max-width:720px;margin:0 auto;padding:16px 16px 40px}
+h1{font-size:26px;margin:4px 0 2px}.sub{color:var(--mute);font-size:16px;margin:0 0 14px}
+nav{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:14px}
+nav button{flex:1;border:0;background:none;color:var(--mute);padding:10px 4px;border-radius:9px;font-size:16px;font-weight:600;cursor:pointer}
+nav button.on{background:var(--acc);color:var(--onacc)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+h2{font-size:19px;margin:0 0 10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 10px;min-width:0;flex:1 1 110px}
+button.p{background:var(--acc);color:var(--onacc);border:0;border-radius:9px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer;flex:0 0 auto}
+button.g{background:none;border:0;color:var(--bad);cursor:pointer;font-size:15px;padding:4px}
+button.s{background:var(--accbg);color:var(--acc);border:0;border-radius:8px;padding:5px 9px;font-size:15px;font-weight:600;cursor:pointer}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:16px}
+th{text-align:left;color:var(--mute);font-weight:600;font-size:14px;padding:6px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+.num{text-align:right;white-space:nowrap}
+.empty{color:var(--mute);font-size:14px;padding:6px 0}
+.tag{font-size:14px;border-radius:99px;padding:2px 8px;background:var(--accbg);color:var(--acc);font-weight:600}
+.tag.r{background:var(--line);color:var(--mute)}
+.low{color:var(--bad);font-weight:600}
+.sum{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:17px}
+.sum .big{font-size:22px;font-weight:700;border-top:1px solid var(--line);padding-top:8px;margin-top:4px}
+.profit{color:var(--acc)}.loss{color:var(--bad)}
+.note{font-size:15px;color:var(--mute);margin-top:8px}
+.msg{font-size:15px;color:var(--bad);min-height:18px;margin:2px 0 6px}
+#dlg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;align-items:center;justify-content:center;padding:16px}
+#dlg.on{display:flex}
+#dlg .box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;width:100%;max-width:360px}
+.lb{display:block;font-size:15px;color:var(--mute);margin-bottom:10px}.lb input{display:block;width:100%;margin-top:4px;color:var(--ink)}.lb select{display:block;width:100%;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1 id="biz">Shopbook</h1>
+<p class="sub">Simple records for your business: costs, stock and daily sales.</p>
+<nav id="nav">
+<button data-t="exp" class="on">Expenses</button>
+<button data-t="stock">Stock</button>
+<button data-t="book">Notebook</button><button data-t="set">Settings</button>
+</nav>
+
+<section id="exp">
+<div class="card"><h2>Add an expense</h2>
+<div class="row"><input id="eDate" type="date"></div><div class="note" style="margin:0 0 8px">For rent, transport, data, wages and similar. Buying goods? Use “+ Restock” in Stock &amp; Prices and it is logged here for you.</div>
+<div class="row"><input id="eLabel" placeholder="What was it for?"><input id="eAmt" type="number" min="0" inputmode="decimal" placeholder="Amount (₦)"><button class="p" id="eAdd">Add</button></div>
+<div class="msg" id="eMsg"></div></div>
+<div class="card"><h2>Expense log</h2><div class="scroll" id="eList"></div></div>
+</section>
+
+<section id="stock" hidden>
+<div class="card"><h2>Add an item</h2>
+<div class="row"><input id="iName" placeholder="Item name"><input id="iCost" type="number" min="0" inputmode="decimal" placeholder="Cost price (₦)"><input id="iPrice" type="number" min="0" inputmode="decimal" placeholder="Selling price (₦)"><input id="iQty" type="number" min="0" inputmode="numeric" placeholder="Qty in stock"><input id="iLow" type="number" min="0" inputmode="numeric" placeholder="Warn at (optional)"><button class="p" id="iAdd">Add</button></div>
+<div class="msg" id="iMsg"></div></div>
+<div id="lowBox"></div>
+<div class="card"><h2>Price list &amp; inventory</h2><input id="iSearch" type="search" placeholder="Search items…" style="width:100%;margin-bottom:8px;flex:none"><div class="scroll" id="iList"></div>
+<div class="note">Selling an item reduces its stock automatically. “+ Restock” adds the units and logs what you paid in Expenses, so you only enter it once.</div></div>
+</section>
+
+<section id="set" hidden>
+<div class="card"><h2>Your business</h2>
+<label class="lb">Business name<input id="sName" placeholder="Shopbook"></label>
+<div class="row"><label class="lb" style="flex:1 1 120px">Currency symbol<input id="sCur" maxlength="4"></label><label class="lb" style="flex:1 1 120px">Default low-stock warning (units)<input id="sLow" type="number" min="0" inputmode="numeric"></label></div>
+<label class="lb">Theme<select id="sTheme"><option value="auto">Follow my device</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+<div class="note" style="margin-top:0">Changes save as you type. Any item can have its own warning level in the Stock tab.</div></div>
+<div class="card"><h2>Backup &amp; restore</h2>
+<div class="note" style="margin:0 0 10px">Your records live only in this browser. Download a backup now and then so you never lose them. Restoring replaces what is on this device.</div>
+<div class="row"><button class="p" id="bk">Download backup</button><button class="s" id="rs">Restore from backup</button><input type="file" id="rsFile" accept=".json,application/json" hidden></div>
+<div class="msg" id="sMsg"></div></div>
+<div class="card"><h2>Start over</h2>
+<div class="note" style="margin:0 0 8px">Erases all items, expenses and sales on this device. Your settings stay.</div>
+<button class="g" id="wipe">Erase all records</button></div>
+</section>
+
+<section id="book" hidden>
+<div class="card"><h2>Record a sale</h2>
+<div class="row"><input id="bDate" type="date"></div>
+<div class="row"><select id="bItem"></select><input id="bQty" type="number" min="1" value="1" inputmode="numeric"><input id="bTotal" type="number" min="0" inputmode="decimal" placeholder="Total (₦)"></div><div class="row"><select id="bPay"><option value="paid">Paid now</option><option value="credit">On credit (pays later)</option></select><input id="bCust" placeholder="Customer name" hidden><button class="p" id="bAdd">Add</button></div>
+<div class="msg" id="bMsg"></div></div>
+<div class="card"><h2>Sales for the day</h2><div class="scroll" id="bList"></div></div>
+<div class="card"><h2>Who owes you</h2><div class="scroll" id="dList"></div></div>
+<div class="card"><h2>Profit</h2>
+<div class="row"><select id="rng"><option value="day">This day</option><option value="week">Last 7 days</option><option value="month">This month</option></select><button class="p" id="close">Calculate profit</button></div>
+<div id="sum" style="margin-top:12px"></div></div>
+</section>
+</div>
+
+<script>
+var KEY="shopbook-v1",S={items:[],exp:[],sales:[]};
+try{var raw=localStorage.getItem(KEY);if(raw){var p=JSON.parse(raw);if(p&&p.items)S=p}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function fixSettings(){S.settings=Object.assign({name:"Shopbook",cur:"₦",low:3,theme:"auto"},S.settings||{})}
+fixSettings();
+var $=function(i){return document.getElementById(i)};
+var money=function(n){return S.settings.cur+Math.round(n).toLocaleString("en-NG")};
+var uid=function(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
+var today=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+$("eDate").value=today;$("bDate").value=today;
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML}
+function item(id){return S.items.find(function(i){return i.id===id})}
+function got(s){var t=0;(s.pays||[]).forEach(function(p){t+=p.amt});return t}
+function owed(s){return s.paid===false?Math.max(0,s.total-got(s)):0}
+document.body.insertAdjacentHTML("beforeend",'<div id="dlg"><div class="box"><h2 id="dT"></h2><div id="dF"></div><div class="row"><button class="p" id="dOk">Save</button><button class="s" id="dNo">Cancel</button></div></div></div>');
+function ask(title,fields,cb){
+$("dT").textContent=title;
+$("dF").innerHTML=fields.map(function(f,i){return '<label class="lb">'+esc(f.l)+'<input id="dF'+i+'" type="number" min="0" inputmode="decimal" value="'+f.v+'"></label>'}).join("");
+$("dlg").classList.add("on");
+$("dOk").onclick=function(){var v=fields.map(function(f,i){return parseFloat($("dF"+i).value)});if(v.some(function(x,i){return isNaN(x)&&!fields[i].opt}))return;$("dlg").classList.remove("on");cb(v)};
+$("dNo").onclick=function(){$("dlg").classList.remove("on")}}
+function doRestock(id){var it=item(id);if(!it)return;
+ask("Restock "+it.name,[{l:"Units that arrived",v:10},{l:"Total you paid ("+S.settings.cur+")",v:it.cost*10},{l:"Cost price each ("+S.settings.cur+")",v:it.cost}],function(v){
+var n=Math.floor(v[0]);if(!(n>0))return;it.qty+=n;S.exp.push({id:uid(),date:today,type:"restock",label:"Restock: "+it.name+" ×"+n,amt:v[1]});it.cost=v[2];save();render()})}
+function doPay(id){var sp=S.sales.find(function(x){return x.id===id});if(!sp)return;var rem=owed(sp);
+ask(sp.cust+" owes "+money(rem),[{l:"Amount paid now ("+S.settings.cur+")",v:rem}],function(v){var a=Math.min(v[0],rem);if(!(a>0))return;sp.pays=(sp.pays||[]).concat([{date:today,amt:a}]);if(a>=rem){sp.paid=true;sp.paidDate=today}save();render()})}
+
+document.querySelectorAll("#nav button").forEach(function(b){b.onclick=function(){
+document.querySelectorAll("#nav button").forEach(function(x){x.classList.toggle("on",x===b)});
+["exp","stock","book","set"].forEach(function(t){$(t).hidden=t!==b.dataset.t});render()}});
+
+$("eAdd").onclick=function(){
+var l=$("eLabel").value.trim(),a=parseFloat($("eAmt").value);
+if(!l||!(a>0)){$("eMsg").textContent="Add a description and an amount.";return}
+S.exp.push({id:uid(),date:$("eDate").value||today,type:"op",label:l,amt:a});
+$("eLabel").value="";$("eAmt").value="";$("eMsg").textContent="";save();render()};
+
+$("iAdd").onclick=function(){
+var n=$("iName").value.trim(),c=parseFloat($("iCost").value),pr=parseFloat($("iPrice").value),q=parseInt($("iQty").value||"0",10);
+if(!n||!(c>=0)||!(pr>=0)||isNaN(c)||isNaN(pr)){$("iMsg").textContent="Add a name, cost price and selling price.";return}
+var lw=parseInt($("iLow").value,10);S.items.push({id:uid(),name:n,cost:c,price:pr,qty:q>0?q:0,low:lw>=0?lw:undefined});
+["iName","iCost","iPrice","iQty","iLow"].forEach(function(i){$(i).value=""});$("iMsg").textContent="";$("iSearch").value="";save();render()};
+
+function syncTotal(){var it=item($("bItem").value),q=parseInt($("bQty").value,10);$("bTotal").value=it&&q>0?it.price*q:""}
+$("bItem").onchange=syncTotal;$("bQty").oninput=syncTotal;$("bPay").onchange=function(){$("bCust").hidden=$("bPay").value!=="credit"};$("bDate").onchange=function(){$("sum").innerHTML="";render()};
+
+$("bAdd").onclick=function(){
+var it=item($("bItem").value),q=parseInt($("bQty").value,10),t=parseFloat($("bTotal").value);
+if(!it){$("bMsg").textContent=S.items.length?"Select an item first.":"Add an item in Stock & Prices first.";return}
+if(!(q>0)||isNaN(t)){$("bMsg").textContent="Enter a quantity and total.";return}
+if(q>it.qty){$("bMsg").textContent="Only "+it.qty+" of "+it.name+" left in stock.";return}
+var cr=$("bPay").value==="credit",cu=$("bCust").value.trim();if(cr&&!cu){$("bMsg").textContent="Enter the customer’s name for a credit sale.";return}it.qty-=q;S.sales.push({id:uid(),date:$("bDate").value||today,itemId:it.id,name:it.name,qty:q,cost:it.cost,total:t,paid:!cr,cust:cu});
+$("bMsg").textContent="";$("bQty").value=1;$("bCust").value="";save();$("bItem").value="";render();syncTotal()};
+
+$("close").onclick=function(){summary(true)};
+function fillSettings(){var s=S.settings;$("sName").value=s.name;$("sCur").value=s.cur;$("sLow").value=s.low;$("sTheme").value=s.theme}
+function applySettings(){var s=S.settings,r=document.documentElement;$("biz").textContent=s.name||"Shopbook";document.title=s.name||"Shopbook";if(s.theme==="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",s.theme);$("eAmt").placeholder="Amount ("+s.cur+")";$("iCost").placeholder="Cost price ("+s.cur+")";$("iPrice").placeholder="Selling price ("+s.cur+")";$("bTotal").placeholder="Total ("+s.cur+")"}
+function addDays(d,n){var t=new Date(d+"T00:00:00Z");t.setUTCDate(t.getUTCDate()+n);return t.toISOString().slice(0,10)}
+function range(d){var m=$("rng").value;if(m==="week")return[addDays(d,-6),d,"Profit, last 7 days to "+d];if(m==="month")return[d.slice(0,8)+"01",d.slice(0,8)+"31","Profit for "+d.slice(0,7)];return[d,d,"Profit for "+d]}
+function doEdit(id){var it=item(id);if(!it)return;
+ask("Edit "+it.name,[{l:"Cost price ("+S.settings.cur+")",v:it.cost},{l:"Selling price ("+S.settings.cur+")",v:it.price}],function(v){it.cost=v[0];it.price=v[1];save();render()})}
+function lowOf(i){return i.low>=0?i.low:S.settings.low}
+function doLow(id){var it=item(id);if(!it)return;
+ask("Warning level for "+it.name,[{l:"Warn me at or below this many units. Leave empty to use the default ("+S.settings.low+").",v:it.low>=0?it.low:"",opt:true}],function(v){if(isNaN(v[0]))delete it.low;else it.low=Math.max(0,Math.floor(v[0]));save();render()})}
+function sm(t,ok){var m=$("sMsg");m.textContent=t;m.style.color=ok?"var(--acc)":"var(--bad)"}
+function setS(){var s=S.settings;s.name=$("sName").value.trim();s.cur=$("sCur").value.trim()||"₦";s.low=Math.max(0,parseInt($("sLow").value,10)||0);s.theme=$("sTheme").value;save();applySettings();render()}
+["sName","sCur","sLow","sTheme"].forEach(function(i){$(i).oninput=setS;$(i).onchange=setS});
+$("bk").onclick=function(){
+if(!window.claude||!claude.use){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:"application/json"}));a.download="shopbook-backup-"+today+".json";document.body.appendChild(a);a.click();a.remove();sm("Backup downloaded.",true);return}
+claude.use("downloads").then(function(dl){
+if(!dl){sm("Downloads aren’t available here. Open this page in claude.ai to back up.",false);return}
+return dl.save({filename:"shopbook-backup-"+today+".json",data:JSON.stringify(S,null,2)}).then(function(){sm("Backup saved.",true)}).catch(function(e){sm(e&&e.code==="declined"?"":"Couldn’t save the backup.",false)})
+}).catch(function(){sm("Couldn’t save the backup.",false)})};
+$("rs").onclick=function(){$("rsFile").click()};
+$("iSearch").oninput=render;$("rng").onchange=function(){$("sum").innerHTML=""};
+$("rsFile").onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();
+r.onload=function(){try{var p=JSON.parse(r.result);if(!p||!Array.isArray(p.items)||!Array.isArray(p.exp)||!Array.isArray(p.sales))throw 0;S=p;fixSettings();save();fillSettings();applySettings();render();sm("Backup restored.",true)}catch(e){sm("That file doesn’t look like a Shopbook backup.",false)}};
+r.readAsText(f);this.value=""};
+var wt;$("wipe").onclick=function(){var b=this;if(!b.dataset.arm){b.dataset.arm="1";b.textContent="Tap again to erase everything";clearTimeout(wt);wt=setTimeout(function(){b.dataset.arm="";b.textContent="Erase all records"},4000);return}
+S={items:[],exp:[],sales:[],settings:S.settings};save();render();$("sum").innerHTML="";b.dataset.arm="";b.textContent="Erase all records";sm("All records erased.",true)};
+fillSettings();applySettings();
+
+function summary(show){
+var d=$("bDate").value||today,
+rg=range(d),inR=function(x){return x>=rg[0]&&x<=rg[1]},rev=0,cogs=0,op=0,rs=0,cr=0,col=0;
+S.sales.forEach(function(s){if(inR(s.date)){rev+=s.total;cogs+=s.cost*s.qty;cr+=owed(s)}(s.pays||[]).forEach(function(p){if(inR(p.date))col+=p.amt});if(s.paid!==false&&s.paidDate&&inR(s.paidDate)&&!s.pays)col+=s.total});
+S.exp.forEach(function(e){if(inR(e.date)){if(e.type==="op")op+=e.amt;else rs+=e.amt}});
+var pf=rev-cogs-op;
+if(!show)return;
+$("sum").innerHTML='<div class="sum"><span>Sales (revenue)</span><b class="num">'+money(rev)+'</b>'
++'<span>Cost of items sold</span><span class="num">− '+money(cogs)+'</span>'
++'<span>Operating expenses</span><span class="num">− '+money(op)+'</span>'
++'<span class="big">'+esc(rg[2])+'</span><span class="big num '+(pf>=0?"profit":"loss")+'">'+(pf<0?"−":"")+money(Math.abs(pf))+'</span></div>'
++'<div class="note">Of these sales, '+money(cr)+' is still owed on credit'+(col?', and you received '+money(col)+' in credit payments in this period':'')+'. Profit counts credit sales as earned. Restocking spend in this period ('+money(rs)+') is cash out but isn’t deducted again, because each item’s cost is counted when it sells.</div>'}
+
+function render(){
+var d=$("bDate").value||today;
+// expenses
+var ex=S.exp.slice().sort(function(a,b){return a.date<b.date?1:-1});
+$("eList").innerHTML=ex.length?'<table><tr><th>Date</th><th>For</th><th>Type</th><th class="num">Amount</th><th></th></tr>'+ex.map(function(e){
+return '<tr><td>'+esc(e.date)+'</td><td>'+esc(e.label)+'</td><td><span class="tag '+(e.type==="op"?"":"r")+'">'+(e.type==="op"?"Operating":"Restock")+'</span></td><td class="num">'+money(e.amt)+'</td><td><button class="g" data-de="'+e.id+'">Delete</button></td></tr>'}).join("")+'</table>':'<div class="empty">No expenses yet.</div>';
+// stock
+var q=($("iSearch").value||"").trim().toLowerCase(),list=S.items.filter(function(i){return i.name.toLowerCase().indexOf(q)>-1}).sort(function(a,b){return (b.qty<=lowOf(b))-(a.qty<=lowOf(a))});
+$("iList").innerHTML=list.length?'<table><tr><th>Item</th><th class="num">Cost</th><th class="num">Price</th><th class="num">Margin</th><th class="num">In stock</th><th class="num">Warn at</th><th></th></tr>'+list.map(function(i){
+return '<tr><td>'+esc(i.name)+'</td><td class="num">'+money(i.cost)+'</td><td class="num">'+money(i.price)+'</td><td class="num">'+money(i.price-i.cost)+'</td><td class="num '+(i.qty<=lowOf(i)?"low":"")+'">'+i.qty+'</td><td class="num"><button class="g" style="color:var(--mute)" data-lw="'+i.id+'">'+lowOf(i)+(i.low>=0?'':' (default)')+'</button></td><td class="num"><button class="s" data-rs="'+i.id+'">+ Restock</button> <button class="s" data-ed="'+i.id+'">Edit</button> <button class="g" data-di="'+i.id+'">Delete</button></td></tr>'}).join("")+'</table>':'<div class="empty">'+(S.items.length?"No items match your search.":"No items yet. Add your first one above.")+'</div>';
+var lows=S.items.filter(function(i){return i.qty<=lowOf(i)});
+$("lowBox").innerHTML=lows.length?'<div class="card" style="background:var(--badbg);border-color:var(--bad)"><b>'+lows.length+(lows.length>1?' items are':' item is')+' running low</b><div class="note" style="color:var(--ink);margin-top:4px">'+lows.map(function(i){return esc(i.name)+' ('+i.qty+' left)'}).join(", ")+'</div></div>':'';
+// dropdown
+var cur=$("bItem").value;
+$("bItem").innerHTML=S.items.length?'<option value="">Select an item</option>'+S.items.map(function(i){return '<option value="'+i.id+'">'+esc(i.name)+' ('+money(i.price)+', '+i.qty+' left)</option>'}).join(""):'<option value="">No items yet – add one in Stock &amp; Prices</option>';
+if(cur&&item(cur))$("bItem").value=cur;
+if(!$("bTotal").value)syncTotal();
+// sales
+var ss=S.sales.filter(function(s){return s.date===d});
+$("bList").innerHTML=ss.length?'<table><tr><th>Item</th><th class="num">Qty</th><th class="num">Total</th><th></th></tr>'+ss.map(function(s){
+return '<tr><td>'+esc(s.name)+(s.paid===false?' <span class="tag r">Credit: '+esc(s.cust)+'</span>':'')+'</td><td class="num">'+s.qty+'</td><td class="num">'+money(s.total)+'</td><td><button class="g" data-ds="'+s.id+'">Delete</button></td></tr>'}).join("")+'</table>':'<div class="empty">No sales recorded for this day.</div>';
+var db=S.sales.filter(function(s){return s.paid===false}),dt=0;db.forEach(function(s){dt+=owed(s)});
+$("dList").innerHTML=db.length?'<table><tr><th>Customer</th><th>Item</th><th>Date</th><th class="num">Owes</th><th></th></tr>'+db.map(function(s){return '<tr><td>'+esc(s.cust)+'</td><td>'+esc(s.name)+' ×'+s.qty+'</td><td>'+esc(s.date)+'</td><td class="num">'+money(owed(s))+(got(s)?'<div class="note" style="margin:0">of '+money(s.total)+'</div>':'')+'</td><td class="num"><button class="s" data-pd="'+s.id+'">Record payment</button></td></tr>'}).join("")+'<tr><td colspan="3"><b>Total owed</b></td><td class="num"><b>'+money(dt)+'</b></td><td></td></tr></table>':'<div class="empty">Nobody owes you right now.</div>';
+}
+
+document.addEventListener("click",function(e){
+var t=e.target,id;
+if(id=t.dataset.de){S.exp=S.exp.filter(function(x){return x.id!==id})}
+else if(id=t.dataset.di){S.items=S.items.filter(function(x){return x.id!==id})}
+else if(id=t.dataset.rs){doRestock(id);return}else if(id=t.dataset.lw){doLow(id);return}else if(id=t.dataset.ed){doEdit(id);return}else if(id=t.dataset.pd){doPay(id);return}
+else if(id=t.dataset.ds){var s=S.sales.find(function(x){return x.id===id}),it2=s&&item(s.itemId);if(it2)it2.qty+=s.qty;S.sales=S.sales.filter(function(x){return x.id!==id});$("sum").innerHTML=""}
+else return;
+save();render()});
+
+render();
+</script>
+</body>
+</html>
